@@ -1,4 +1,4 @@
-# Analog Devices AD7193 Arduino Library
+# PR-DC Arduino Library for Analog Devices AD7193 
 
 The AD7193 is a low noise, complete analog front end for high precision 
 measurement applications. It contains a low noise, 24-bit sigma-delta (Σ-Δ) 
