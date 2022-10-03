@@ -31,7 +31,7 @@
 #include <SPI.h>
 
 // AD71983 Library debug
-//#define DEBUG_AD7193
+// #define DEBUG_AD7193
 
 // SPI communication settings
 #define AD7193_DEFAULT_SPI_FREQUENCY 1000000
@@ -109,12 +109,16 @@
 // Configuration Register Bit Designations (AD7193_REG_CONF)
 #define AD7193_CONF_CHOP        (1 << 23)            // CHOP enable.
 #define AD7193_CONF_NO_CHOP     (0 << 23)            // CHOP disable.
-#define AD7193_CONF_REFSEL      (1 << 20)            // REFIN1/REFIN2 Reference Select.
+#define AD7193_CONF_REFSEL      (1 << 20)            // REFIN2 Reference Select.
+#define AD7193_CONF_REFSEL      (0 << 20)            // REFIN1 Reference Select.
 #define AD7193_CONF_PSEUDO      (1 << 18)            // Pseudo differential analog inputs.
+#define AD7193_CONF_DIFF        (0 << 18)            // Differential analog inputs.
 #define AD7193_CONF_CHAN(x)     (((x) & 0x3FF) << 8) // Channel select.
 #define AD7193_CONF_BURN        (1 << 7)             // Burnout current enable.
+#define AD7193_CONF_NO_BURN     (0 << 7)             // Burnout current disable.
 #define AD7193_CONF_REFDET      (1 << 6)             // Reference detect enable.
 #define AD7193_CONF_BUF         (1 << 4)             // Buffered Mode Enable.
+#define AD7193_CONF_NO_BUF      (0 << 4)             // Buffered Mode Disable.
 #define AD7193_CONF_UNIPOLAR    (1 << 3)             // Unipolar/Bipolar Enable.
 #define AD7193_CONF_GAIN(x)     ((x) & 0x7)          // Gain Select.
 
@@ -160,45 +164,54 @@ class PRDC_AD7193 {
     void setSPIFrequency(uint32_t);
     void setSPI(SPIClass&);
   
-    bool begin();
+    bool begin(void);
     bool begin(uint8_t, uint8_t);
-    void end();
-    void reset();
+    void end(void);
+    void reset(void);
     void setClockMode(uint8_t);
     void setRate(uint32_t);
     void setFilter(uint32_t);
     void enableNotchFilter(bool);
     void enableChop(bool);
-    bool checkID();
-    void waitReady();
+    void enableBuffer(bool);
+    bool checkID(void);
+    void waitReady(void);
     void setPower(uint8_t);
     void channelSelect(uint8_t);
     void calibrate(uint8_t, uint8_t);
     void rangeSetup(uint8_t, uint8_t);
     uint32_t singleConversion();
     uint32_t continuousReadAverage(uint32_t);
-    float temperatureRead();
+    void continuousRead(uint32_t, uint32_t*);
+    float temperatureRead(void);
     float rawToVolts(uint32_t, float);
-    void printAllRegisters();
+    void printAllRegisters(void);
     
   private:
     SPISettings _spiSettings;
     SPIClass* _spi;
     uint8_t _CS;
     uint8_t _MISO;
-    uint8_t _polarity = 0;
-    uint8_t _gain = 1;
+    
     uint8_t _clock_mode = AD7193_CLK_INT;
     uint32_t _rate = 0x060;
+    
+    uint8_t _polarity = 0;
+    uint8_t _gain = AD7193_CONF_GAIN(AD7193_CONF_GAIN_1);
     uint32_t _filter = AD7193_MODE_SINC4;
     uint32_t _notch_filter = AD7193_MODE_REJ60;
     uint32_t _chop = AD7193_CONF_NO_CHOP;
-    void pinInit();
-    void beginTransaction();
-    void endTransaction();
+    uint32_t _buf = AD7193_CONF_NO_BUF;
+    uint32_t _burnout = AD7193_CONF_NO_BURN;
+    uint8_t _channel = AD7193_CH_0;
+    
+    void pinInit(void);
+    void beginTransaction(void);
+    void endTransaction(void);
     uint32_t getRegister(uint8_t, uint8_t);
     uint32_t getSingleRegister(uint8_t, uint8_t);
     void setRegister(uint8_t, uint32_t, uint8_t);
     void setSingleRegister(uint8_t, uint32_t, uint8_t);
+    void updateConf(void);
 };
 #endif // _PRDC_AD7193_H_
