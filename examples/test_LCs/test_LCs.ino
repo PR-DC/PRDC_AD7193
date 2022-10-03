@@ -50,12 +50,13 @@ void setup() {
   } else {
     AD7193.printAllRegisters();
     AD7193.setClockMode(AD7193_CLK_EXT_MCLK2);
-    AD7193.setRate(0x005);
-    AD7193.setFilter(AD7193_MODE_SINC3);
+    AD7193.setRate(0x002);
+    AD7193.setFilter(AD7193_MODE_SINC4);
     AD7193.enableNotchFilter(false);
     AD7193.enableChop(false);
-    AD7193.rangeSetup(0, AD7193_CONF_GAIN_128); // bipolar, +-12.89 mV
-    AD7193.channelSelect(AD7193_CH_1);
+    AD7193.enableBuffer(true);
+    AD7193.rangeSetup(0, AD7193_CONF_GAIN_128);
+    AD7193.channelSelect(AD7193_CH_0);
   }
 }
 
