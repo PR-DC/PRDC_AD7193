@@ -241,8 +241,6 @@ void PRDC_AD7193::setFilter(uint32_t filter) {
   #endif
   
   _filter = filter;
-  
-  updateConf();
 }
 
 // enableNotchFilter() function
@@ -258,8 +256,6 @@ void PRDC_AD7193::enableNotchFilter(bool notch_state) {
   } else {
     _notch_filter = AD7193_MODE_NO_REJ60;
   }
-  
-  updateConf();
 }
 
 // enableChop() function
@@ -307,8 +303,6 @@ void PRDC_AD7193::updateConf(void) {
   uint32_t command = AD7193_CONF_CHAN(1 << _channel) | 
                     (_polarity * AD7193_CONF_UNIPOLAR) |
                     _gain |
-                    _filter |
-                    _notch_filter | 
                     _chop |
                     _buf |
                     _burnout; 
@@ -417,6 +411,8 @@ uint32_t PRDC_AD7193::singleConversion() {
   
   uint32_t command = AD7193_MODE_SEL(AD7193_MODE_SINGLE) | 
                      AD7193_MODE_CLKSRC(_clock_mode) |
+                     _filter |
+                     _notch_filter |
                      AD7193_MODE_RATE(_rate); 
   this->beginTransaction();
   this->setRegister(AD7193_REG_MODE, command, 3);
@@ -438,6 +434,8 @@ uint32_t PRDC_AD7193::continuousReadAverage(uint32_t sampleNumber) {
   uint32_t samplesAverage = 0;  
   uint32_t command = AD7193_MODE_SEL(AD7193_MODE_CONT) | 
                      AD7193_MODE_CLKSRC(_clock_mode) |
+                     _filter |
+                     _notch_filter |
                      AD7193_MODE_RATE(_rate);
             
   this->beginTransaction();
@@ -461,6 +459,8 @@ void PRDC_AD7193::continuousRead(uint32_t sampleNumber, uint32_t *buffer) {
    
   uint32_t command = AD7193_MODE_SEL(AD7193_MODE_CONT) | 
                      AD7193_MODE_CLKSRC(_clock_mode) |
+                     _filter |
+                     _notch_filter |
                      AD7193_MODE_RATE(_rate);
             
   this->beginTransaction();
